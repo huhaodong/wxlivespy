@@ -23,5 +23,6 @@
     "test/**/__snapshots__": true,
     "package-lock.json": true,
     "*.{css,sass,scss}.d.ts": true
-  }
+  },
+  "Codegeex.Chat.LanguagePreference": "中文"
 }

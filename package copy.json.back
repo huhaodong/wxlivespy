@@ -174,7 +174,8 @@
   "build": {
     "productName": "WXLiveSpy",
     "appId": "com.fire4nt.wxlivespy",
-    "asar": false,
+    "asar": true,
+    "asarUnpack": "**\\*.{node,dll}",
     "files": [
       "dist",
       "node_modules",

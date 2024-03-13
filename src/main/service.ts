@@ -1,3 +1,4 @@
+import os from 'os';
 import { app, ipcMain, BrowserWindow, shell } from 'electron';
 import log from 'electron-log';
 import path from 'path';
@@ -10,6 +11,7 @@ import EventForwarder from './EventForwarder';
 import SpyHttpServer from './httpserver';
 import IDCache from './idcache';
 import WXDataDecoder from './WXDataDecoder';
+import FileProcess from './fsoutput';
 
 class SpyService implements WXLiveEventHandler {
   private config: SpyConfig | null;
@@ -28,6 +30,10 @@ class SpyService implements WXLiveEventHandler {
 
   private idCache: IDCache;
 
+  private outputPath: string;
+
+  private fsHandel: FileProcess;
+
   constructor(configFilePath: string, mainWindow: BrowserWindow) {
     this.config = new SpyConfig(configFilePath);
     this.config.load();
@@ -40,6 +46,11 @@ class SpyService implements WXLiveEventHandler {
     this.currentStatus = null;
     this.httpServer = null;
     this.idCache = new IDCache();
+
+    // const outputPath = `${os.homedir()}\\Desktop`;
+    // const outputPath = `${__dirname}/../../`;
+    this.outputPath = `${app.getPath('documents')}\\wxLiveSpy\\output`;
+    this.fsHandel = new FileProcess(this.outputPath);
   }
 
   public setChromePath(chromePath: string) {
@@ -49,6 +60,10 @@ class SpyService implements WXLiveEventHandler {
   public onStatusUpdate(liveInfo: LiveInfo) {
     // log.info(`forward status: ${liveInfo.wechat_uin} to ${this.config?.getProp('forward_url')}`);
     this.currentStatus = liveInfo;
+
+    // 将liveinfo（直播间状态）输出到excel文件中
+    this.fsHandel.liveInfoExcelWriter(liveInfo);
+
     this.mainWindow?.webContents.send('wxlive-status', liveInfo);
   }
 
@@ -60,6 +75,10 @@ class SpyService implements WXLiveEventHandler {
       return;
     }
     log.debug(`show event ${liveMessage.seq}`);
+
+    // 将直播间的弹幕信息输出到excel文件中
+    this.fsHandel.messageInfoExcelWrite(liveMessage);
+
     this.mainWindow?.webContents.send('wxlive-event', liveMessage);
     this.receivedSeqs.push(liveMessage.seq);
   }

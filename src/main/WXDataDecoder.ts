@@ -10,7 +10,7 @@ class WXDataDecoder {
     li.online_count = o.onlineCnt;
     li.start_time = o.startTime;
     li.like_count = o.likeCnt;
-    li.reward_total_amount_in_wecoin = o.rewardTotalAmountInWecoin;
+    li.reward_total_amount_in_wecoin = Number(o.rewardTotalAmountInWecoin);
     return li;
   }
 
