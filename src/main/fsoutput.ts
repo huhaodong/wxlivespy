@@ -12,6 +12,8 @@ export default class FileProcess {
 
   private fileFrontName: string = '';
 
+  public liveID: string = '';
+
   // 定义一个函数，接受一个路径作为参数
   private createDirectoryIfNotExists(dirPath: string): void {
     // 获取路径的绝对路径
@@ -189,7 +191,8 @@ export default class FileProcess {
     const fromdata = this.fromLiveInfoData(data);
     if (this.fileFrontName === '') {
       this.fileFrontName = `${fromdata.StartDateStr}_${fromdata.StartTimeStr.replace(/:/g, '-')}`;
-      log.debug(`>>> 第一次收到直播数据，将获取前置文件名：${this.fileFrontName}`);
+      this.liveID = fromdata.LiveID;
+      log.debug(`>>> 第一次收到直播数据，将获取前置文件名：${this.fileFrontName} 以及liveid：${this.liveID}`);
     }
     const fname = `${this.fileFrontName}_LiveStatus.xlsx`;
     const filename = path.join(this.path, fname);
