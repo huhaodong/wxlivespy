@@ -4,7 +4,7 @@ import log from 'electron-log';
 import * as fs from 'fs';
 import * as XLSX from 'xlsx';
 import { pad2,pad3 } from '../CommonUtil';
-
+import DSHandler from './dsHandle';
 import { DecodedData, LiveInfo, LiveMessage } from '../CustomTypes';
 
 export default class FileProcess {
@@ -13,6 +13,10 @@ export default class FileProcess {
   private fileFrontName: string = '';
 
   public liveID: string = '';
+
+  public wechatUin: string = '';
+
+  private dsHandle: DSHandler;
 
   // 定义一个函数，接受一个路径作为参数
   private createDirectoryIfNotExists(dirPath: string): void {
@@ -33,6 +37,7 @@ export default class FileProcess {
   constructor(path: string) {
     this.path = path;
     this.createDirectoryIfNotExists(path);
+    this.dsHandle = new DSHandler();
   }
 
   private delSpecialChar(str: String) {
@@ -192,11 +197,15 @@ export default class FileProcess {
     if (this.fileFrontName === '') {
       this.fileFrontName = `${fromdata.StartDateStr}_${fromdata.StartTimeStr.replace(/:/g, '-')}`;
       this.liveID = fromdata.LiveID;
+      this.wechatUin = fromdata.WechatUin;
       log.debug(`>>> 第一次收到直播数据，将获取前置文件名：${this.fileFrontName} 以及liveid：${this.liveID}`);
     }
     const fname = `${this.fileFrontName}_LiveStatus.xlsx`;
     const filename = path.join(this.path, fname);
-    this.excelWriter(filename, fromdata);
+    //发送直播状态数据到服务器
+    this.dsHandle.sendLivestatus(fromdata);
+    //写入到本地
+    // this.excelWriter(filename, fromdata);
   }
 
   public messageInfoExcelWrite(data: LiveMessage) {
@@ -206,7 +215,10 @@ export default class FileProcess {
     }else{
       const fname = `${this.fileFrontName}_LiveMessages.xlsx`;
       const filename = path.join(this.path, fname);
-      this.excelWriter(filename, fromdata);
+      // 发送弹幕数据到服务器
+      this.dsHandle.sendLivemessage(fromdata, this.liveID);
+      //写入弹幕数据到本地
+      // this.excelWriter(filename, fromdata);
     }
   }
 

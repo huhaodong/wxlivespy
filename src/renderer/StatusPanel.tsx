@@ -119,8 +119,10 @@ window.electron.ipcRenderer.on('wxlive-status', (arg) => {
   // cast arg to StatusData
   const castedStatusData = arg as LiveInfo;
   if (formData !== undefined) {
-    formData.hostID = stringmask(castedStatusData.wechat_uin, 3, 3);
-    formData.roomID = stringmask(castedStatusData.live_id, 3, 3);
+    // formData.hostID = stringmask(castedStatusData.wechat_uin, 3, 3);
+    formData.hostID = castedStatusData.wechat_uin;
+    // formData.roomID = stringmask(castedStatusData.live_id, 3, 3);
+    formData.roomID = castedStatusData.live_id;
     formData.startTime = date2str(new Date(castedStatusData.start_time * 1000));
     formData.onlineNumber = castedStatusData.online_count;
     formData.likeCount = castedStatusData.like_count;

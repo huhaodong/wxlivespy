@@ -21,3 +21,9 @@ export function md5OfFile(filename: string) {
   const md5 = hash.digest('hex');
   return md5;
 }
+
+export function removeSpecialCharacters(str: string): string {
+  // 正则表达式匹配四字节字符和表情符号
+  const regex = /[\u{10000}-\u{10FFFF}]/gu;
+  return str.replace(regex, '');
+}
